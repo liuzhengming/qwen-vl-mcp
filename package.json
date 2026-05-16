@@ -1,0 +1,29 @@
+﻿{
+    "name":  "qwen-vl-mcp",
+    "version":  "1.0.0",
+    "description":  "MCP Server that brings Qwen-VL-Max vision capabilities to Claude Desktop for UI screenshot-to-code workflows",
+    "main":  "index.js",
+    "scripts":  {
+                    "start":  "node index.js",
+                    "dev":  "node --watch index.js"
+                },
+    "keywords":  [
+                     "mcp",
+                     "claude",
+                     "qwen-vl",
+                     "vision",
+                     "screenshot-to-code",
+                     "alibaba-cloud"
+                 ],
+    "author":  "",
+    "license":  "ISC",
+    "dependencies":  {
+                         "@modelcontextprotocol/sdk":  "^1.29.0",
+                         "dotenv":  "^17.4.2",
+                         "openai":  "^6.38.0"
+                     },
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://github.com/your-username/qwen-vl-mcp.git"
+                   }
+}
