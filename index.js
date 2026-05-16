@@ -133,15 +133,25 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+  var startTime = Date.now();
+  console.error("\n[>>>] Request received: " + name);
+  console.error("      Image: " + args.image_path);
+  if (args.tech_stack) {
+    console.error("      Tech stack: " + args.tech_stack);
+  }
+
   try {
+    var result = "";
     switch (name) {
       case "describe_image": {
-        const result = await describeImage(args.image_path, args.custom_prompt);
-        return { content: [{ type: "text", text: result }] };
+        console.error("[...] Sending to Qwen-VL-Max for analysis...");
+        result = await describeImage(args.image_path, args.custom_prompt);
+        break;
       }
       case "describe_ui_for_code": {
-        const techStack = args.tech_stack || "React";
-        const prompt =
+        var techStack = args.tech_stack || "React";
+        console.error("[...] Analyzing UI for " + techStack + " code generation...");
+        var prompt =
           "You are a professional frontend developer. Analyze this UI design screenshot " +
           "and output a structured description suitable for writing " + techStack + " code.\n\n" +
           "Format your response as follows:\n\n" +
@@ -160,13 +170,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           "[Implementation suggestions, recommended component libraries or CSS frameworks]\n\n" +
           "Write the response in Chinese.";
 
-        const result = await describeImage(args.image_path, prompt);
-        return { content: [{ type: "text", text: result }] };
+        result = await describeImage(args.image_path, prompt);
+        break;
       }
       default:
         throw new Error("Unknown tool: " + name);
     }
+
+    var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.error("[OK] Completed in " + elapsed + "s | Response length: " + result.length + " chars");
+    return { content: [{ type: "text", text: result }] };
   } catch (error) {
+    var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.error("[!!] Failed after " + elapsed + "s: " + error.message);
     return {
       content: [{ type: "text", text: "Error: " + error.message }],
       isError: true,
@@ -176,22 +192,43 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // ===================== Start =====================
 async function main() {
+  var banner = [
+    "",
+    "  ==========================================",
+    "       Qwen-VL MCP Server v1.0.0",
+    "   Powered by Alibaba Cloud DashScope",
+    "  ==========================================",
+    "",
+  ].join("\n");
+  console.error(banner);
+
   if (!DASHSCOPE_API_KEY) {
-    console.error(
-      "DASHSCOPE_API_KEY is not set.\n" +
-      "Please set it via:\n" +
-      "  1. .env file in the project root\n" +
-      "  2. Environment variable: DASHSCOPE_API_KEY\n" +
-      "  3. Claude Desktop config: mcpServers -> qwen-vl -> env"
-    );
+    console.error("[X] DASHSCOPE_API_KEY is not set.\n");
+    console.error("    Please set it via:");
+    console.error("    1. .env file at: " + __dirname);
+    console.error("    2. environment variable: DASHSCOPE_API_KEY");
+    console.error("    3. Claude Desktop config: mcpServers -> qwen-vl -> env\n");
+    console.error("    Get your key at: https://bailian.console.aliyun.com\n");
     process.exit(1);
   }
-  const transport = new StdioServerTransport();
+  console.error("[*] API Key loaded successfully");
+  console.error("[*] Vision Model: " + MODEL_NAME);
+  console.error("[*] API Base: " + DASHSCOPE_BASE_URL + "\n");
+
+  console.error("[*] Registered Tools (" + TOOLS.length + "):");
+  TOOLS.forEach(function (tool) {
+    console.error("    - " + tool.name);
+  });
+
+  console.error("\n[i] Supported formats: PNG, JPG, JPEG, WebP, GIF, BMP\n");
+
+  console.error("[...] Connecting via stdio transport...");
+  var transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Qwen-VL MCP Server started (model: " + MODEL_NAME + ")");
+  console.error("[OK] Server is ready. Waiting for requests...\n");
 }
 
 main().catch(function (err) {
-  console.error("Startup failed:", err);
+  console.error("[!!] Startup failed:", err.message);
   process.exit(1);
 });
