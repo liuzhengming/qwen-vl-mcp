@@ -9,12 +9,31 @@ const fs = require("fs");
 const path = require("path");
 
 // ===================== Load .env =====================
+// Manually parse .env to avoid dotenv stdout pollution (MCP requires JSON-only stdout)
 try {
-  require("dotenv").config({ path: path.join(__dirname, ".env") });
+  var envPath = path.join(__dirname, ".env");
+  if (fs.existsSync(envPath)) {
+    var envContent = fs.readFileSync(envPath, "utf8");
+    envContent.split(/\r?\n/).forEach(function (line) {
+      var trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith("#")) {
+        var eqIndex = trimmed.indexOf("=");
+        if (eqIndex > 0) {
+          var key = trimmed.substring(0, eqIndex).trim();
+          var value = trimmed.substring(eqIndex + 1).trim();
+          if (value.startsWith("\"") || value.startsWith("'")) {
+            value = value.slice(1, -1);
+          }
+          if (!process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      }
+    });
+  }
 } catch (_) {
-  // dotenv is optional; env vars may be set directly
+  // env vars may be set directly
 }
-
 // ===================== Configuration =====================
 const DASHSCOPE_API_KEY = process.env.DASHSCOPE_API_KEY || "";
 const DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";

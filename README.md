@@ -3,23 +3,24 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
 
-> Bring vision capabilities to Claude Desktop via Alibaba Cloud Qwen-VL-Max
+> 为 Claude Desktop 注入视觉能力 — 基于通义千问 Qwen-VL-Max  
+> [English README](README_EN.md)
 
-qwen-vl-mcp is an MCP (Model Context Protocol) Server that gives Claude Desktop the ability to **see and understand images**. It connects to Alibaba Cloud's **Qwen-VL-Max** vision model, converting UI screenshots, design mockups, and other images into structured text descriptions — perfect for screenshot-to-code workflows.
+qwen-vl-mcp 是一个 MCP (Model Context Protocol) Server，让 Claude Desktop 获得**识图**能力。它对接阿里云**通义千问 Qwen-VL-Max** 视觉模型，可将 UI 截图、设计稿等图片转化为结构化文字描述，方便后续编写前端代码。
 
-## Features
+## 功能
 
-| Tool | Description |
-|------|-------------|
-| `describe_image` | General-purpose image recognition with detailed text description |
-| `describe_ui_for_code` | UI-specialized analysis returning structured output (layout, components, styles, interactions) optimized for frontend code generation |
+| 工具 | 说明 |
+|------|------|
+| `describe_image` | 通用图片识别，返回详细文字描述 |
+| `describe_ui_for_code` | 专为前端开发优化，输出结构化描述（布局、组件、样式、交互） |
 
-## Prerequisites
+## 前置要求
 
 - Node.js >= 18
-- Alibaba Cloud DashScope API Key ([Get one free](https://bailian.console.aliyun.com))
+- 阿里云百炼 API Key（[免费申请](https://bailian.console.aliyun.com)）
 
-## Installation
+## 安装
 
 ```bash
 git clone https://github.com/liuzhengming/qwen-vl-mcp.git
@@ -27,17 +28,17 @@ cd qwen-vl-mcp
 npm install
 ```
 
-## Configuration
+## 配置
 
-### 1. Set your API Key
+### 1. 设置 API Key
 
-Create a `.env` file in the project root (**do NOT commit this file**):
+在项目根目录创建 `.env` 文件（**请勿提交到 Git**）：
 
 ```env
 DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-Or set it as an environment variable:
+或设为环境变量：
 
 ```bash
 # Windows PowerShell
@@ -47,17 +48,17 @@ $env:DASHSCOPE_API_KEY="your-key"
 export DASHSCOPE_API_KEY="your-key"
 ```
 
-### 2. Configure Claude Desktop
+### 2. 配置 Claude Desktop
 
-Edit your Claude Desktop configuration file:
+编辑 Claude Desktop 配置文件：
 
-| Platform | Path |
-|----------|------|
+| 平台 | 路径 |
+|------|------|
 | Windows | `%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json` |
 | macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | Linux | `~/.config/Claude/claude_desktop_config.json` |
 
-Add the `qwen-vl` server entry:
+添加 `qwen-vl` 服务：
 
 ```json
 {
@@ -70,59 +71,60 @@ Add the `qwen-vl` server entry:
 }
 ```
 
-Save the file and **restart Claude Desktop**.
+保存后**重启 Claude Desktop**。
 
-## Usage
+## 使用
 
-Once configured, you can ask Claude to analyze images directly in the chat:
+配置完成后，直接在对话中让 Claude 分析图片：
 
-> Please use describe_ui_for_code to analyze this UI screenshot: `C:\screenshots\login-page.png`, implement with React
+> 请用 describe_ui_for_code 分析这张UI截图：`C:\screenshots\login-page.png`，用 React 实现
 
-Claude will automatically invoke the MCP tool to recognize the image and return a structured description, then generate the corresponding code.
+Claude 会自动调用 MCP 工具识别图片并返回结构化描述，然后生成对应代码。
 
-### Available Parameters
+### 工具参数
 
-**describe_image**:
-- `image_path` (required) — Absolute path to the image
-- `custom_prompt` (optional) — Custom description prompt
+**describe_image**：
+- `image_path`（必填）— 图片绝对路径
+- `custom_prompt`（可选）— 自定义描述提示词
 
-**describe_ui_for_code**:
-- `image_path` (required) — Absolute path to the UI screenshot
-- `tech_stack` (optional) — Target tech stack: `React`, `Vue`, `HTML/CSS`, etc. Defaults to `React`
+**describe_ui_for_code**：
+- `image_path`（必填）— UI 截图绝对路径
+- `tech_stack`（可选）— 目标技术栈：`React`、`Vue`、`HTML/CSS` 等，默认 `React`
 
-## Supported Image Formats
+## 支持的图片格式
 
-PNG, JPG, JPEG, WebP, GIF, BMP
+PNG、JPG、JPEG、WebP、GIF、BMP
 
-## Pricing
+## 费用
 
-Qwen-VL-Max charges per token. New users typically receive free credits. See [DashScope Pricing](https://help.aliyun.com/zh/model-studio/getting-started/models) for details.
+Qwen-VL-Max 按 token 计费，新用户通常有免费额度。详见[百炼平台定价](https://help.aliyun.com/zh/model-studio/getting-started/models)。
 
-## Project Structure
+## 项目结构
 
 ```
 qwen-vl-mcp/
-├── index.js          # MCP Server entry point
-├── package.json      # Project metadata & dependencies
-├── .gitignore        # Git ignore rules (protects .env)
-├── .env.example      # Environment variable template
-├── LICENSE           # MIT License
-└── README.md         # Documentation
+├── index.js          # MCP Server 入口
+├── package.json      # 项目配置
+├── .gitignore        # Git 忽略规则
+├── .env.example      # 环境变量模板
+├── LICENSE           # MIT 许可证
+├── README.md         # 中文文档
+└── README_EN.md      # English Docs
 ```
 
-## Development
+## 开发
 
 ```bash
-# Install dependencies
+# 安装依赖
 npm install
 
-# Start the server
+# 启动服务
 npm start
 
-# Development mode (auto-restart on changes)
+# 开发模式（文件变更自动重启）
 npm run dev
 ```
 
 ## License
 
-MIT © [@liuzhengming](https://github.com/liuzhengming)
+MIT
